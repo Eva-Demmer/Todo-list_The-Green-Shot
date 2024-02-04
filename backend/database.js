@@ -1,30 +1,19 @@
-import { MongoClient, ServerApiVersion } from "mongodb"
+import mysql from "mysql2/promise"
 import dotenv from "dotenv"
 
 dotenv.config()
 
-const uri = process.env.MONGODB_URI
+const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME } = process.env
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
+const pool = mysql.createPool({
+  host: DB_HOST,
+  port: DB_PORT,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 })
 
-async function connectToDatabase() {
-  try {
-    await client.connect()
-    await client.db("admin").command({ ping: 1 })
-    console.info("✅ Connected to MongoDB!")
-  } catch (error) {
-    console.error("❌ Error connecting to MongoDB:", error)
-  }
-}
-
-// Keep this line for connecting to the database on application startup
-connectToDatabase().catch(console.dir)
-
-export { client, connectToDatabase }
+export default pool
