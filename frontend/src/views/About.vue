@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Welcome to TaskTrackr – Your Ultimate Todo List Companion!</h1>
+    <h5>Welcome to TaskTrackr – Your Ultimate Todo List Companion!</h5>
     <p>
       TaskTrackr is not just a todo list; it's your personal productivity powerhouse. We understand
       that in today's fast-paced world, keeping track of tasks and staying organized is essential.

@@ -1,98 +1,175 @@
 <template>
   <main>
     <h5>Your todos</h5>
-    <NewTodo @new-todo="() => openModal(null, 'new')" />
-    <span>Number of todos: {{ allTodos.length }}</span>
+    <div class="btn-add-task">
+      <Button @click="openCreateModal()" label="Add new task" icon="add" class="btn-blue" />
+    </div>
+    <span>🎉 Completed tasks: {{ completedCount }}</span>
+
+    <!-- Todo card -->
     <ul>
       <li v-for="todo in allTodos" :key="todo.id">
-        <TodoCard
-          :todo="todo"
-          :todoTitle="todo.title"
-          :todoDescription="todo.description"
-          @delete-todo="deleteTodo"
-          @modify-todo="(task) => openModal(task, 'modify')"
-        />
+        <div class="todo-card">
+          <div class="task-details">
+            <span class="task-title">{{ todo.title }}</span>
+            <p class="task-description">{{ todo.description }}</p>
+            <Toggle
+              v-model="todo.completed"
+              name="completed"
+              @update:modelValue="(newValue) => handleToggleChange(todo, newValue)"
+            />
+          </div>
+          <div class="action-buttons">
+            <Button @click="openModifyModal(todo.id)" size="md" icon="edit" class="btn-yellow" />
+            <Button @click="deleteTodo(todo.id)" size="md" icon="delete" class="btn-outline-pink" />
+          </div>
+        </div>
       </li>
     </ul>
-    <Modal id="modify-todo" :opened="showModal" header="Edit a todo" @modalClosed="closeModal">
-      <Form
-        title="What do you want to change?"
-        mode="update"
-        :task="selectedTask"
-        @form-submitted="() => handleFormSubmitted('modify')"
-      />
+
+    <!-- Modal -->
+    <Modal
+      id="modify-todo"
+      header="Edit a todo"
+      :opened="showModal.modify"
+      @modalClosed="closeModal"
+    >
+      <div class="form">
+        <q-form @submit="submitForm">
+          <q-input v-model="selectedTodo.title" label="Title" />
+          <q-input v-model="selectedTodo.description" label="Description" />
+          <Toggle v-model="selectedTodo.completed" />
+          <Button type="submit" class="btn-blue btn-submit">Confirmer</Button>
+        </q-form>
+      </div>
     </Modal>
+
     <Modal
       id="new-todo"
-      :opened="showNewTodoModal"
       header="Add a new todo"
-      @modalClosed="closeNewTodoModal"
+      :opened="showModal.create"
+      @modalClosed="closeModal"
     >
-      <Form
-        title="What's your new task"
-        mode="create"
-        @form-submitted="() => handleFormSubmitted('new')"
-      />
+      <div class="form">
+        <q-form @submit="submitCreateForm(createTodo)">
+          <q-input v-model="createTodo.title" label="Title" />
+          <q-input v-model="createTodo.description" label="Description" />
+          <Toggle v-model="createTodo.completed" />
+          <Button type="submit" class="btn-blue btn-submit">Confirmer</Button>
+        </q-form>
+      </div>
     </Modal>
   </main>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue"
-import { getTasks, deleteTask } from "../services/api.tasks"
-import NewTodo from "../components/buttons/NewTodo.vue"
-import TodoCard from "../components/todos/TodoCard.vue"
+import {
+  createTask,
+  getTasks,
+  getTaskById,
+  getCompletedCount,
+  updateTask,
+  deleteTask
+} from "../services/api.tasks"
+import Toggle from "../components/inputs/Toggle.vue"
+import Button from "../components/buttons/Button.vue"
 import Modal from "../components/modal/Modal.vue"
-import Form from "../components/form/Form.vue"
 
 const allTodos = ref([])
-const selectedTask = ref(null)
-const showModal = ref(false)
-const showNewTodoModal = ref(false)
+const selectedTodo = ref({})
+const completedCount = ref(0)
+const showModal = ref({
+  create: false,
+  modify: false
+})
+const createTodo = ref({
+  title: "",
+  description: "",
+  completed: false
+})
 
-async function loadTasks() {
+function openCreateModal() {
+  showModal.value.create = true
+}
+
+function openModifyModal(todoId) {
+  showModal.value.modify = true
+  loadTaskById(todoId)
+}
+
+function closeModal() {
+  showModal.value.create = false
+  showModal.value.modify = false
+  loadTasks()
+}
+
+function submitForm() {
+  modifyTask(selectedTodo.value.id, selectedTodo.value)
+  closeModal()
+}
+
+function submitCreateForm(createTodo) {
+  createNewTodo(createTodo)
+}
+
+// MANIPULATE TASKS
+async function createNewTodo(todo) {
   try {
-    const data = await getTasks()
-    allTodos.value = data
+    await createTask(todo)
+    closeModal()
   } catch (error) {
     console.error(error)
   }
 }
 
-async function deleteTodo(todoToDelete) {
-  if (todoToDelete) {
-    try {
-      await deleteTask(todoToDelete.id)
-      allTodos.value = allTodos.value.filter((task) => task.id !== todoToDelete.id)
-    } catch (error) {
-      console.error(error)
-    }
+async function loadTasks() {
+  try {
+    const tasks = await getTasks()
+    allTodos.value = tasks
+    const completedTodosCount = await getCompletedCount()
+    completedCount.value = completedTodosCount.completedCount
+  } catch (error) {
+    console.error(error)
   }
 }
 
-function openModal(task, modalType) {
-  selectedTask.value = task
-  if (modalType === "modify") {
-    showModal.value = true
-  } else if (modalType === "new") {
-    showNewTodoModal.value = true
+async function loadTaskById(taskId) {
+  try {
+    const task = await getTaskById(taskId)
+    selectedTodo.value = task
+  } catch (error) {
+    console.error(error)
   }
 }
 
-function closeModal() {
-  showModal.value = false
-}
-
-function handleFormSubmitted(modalType) {
-  loadTasks()
-  if (modalType === "modify") {
-    closeModal()
-  } else if (modalType === "new") {
-    closeNewTodoModal()
+async function modifyTask(taskId, taskData) {
+  try {
+    const updatedTask = await updateTask(taskId, taskData)
+    selectedTodo.value = updatedTask
+  } catch (error) {
+    console.error(error)
   }
 }
-function closeNewTodoModal() {
-  showNewTodoModal.value = false
+
+async function handleToggleChange(todo, newValue) {
+  todo.completed = newValue
+  try {
+    const updatedTask = await updateTask(todo.id, todo)
+    selectedTodo.value = updatedTask
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function deleteTodo(taskId) {
+  try {
+    await deleteTask(taskId)
+    selectedTodo.value = {}
+    loadTasks()
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 onMounted(loadTasks)

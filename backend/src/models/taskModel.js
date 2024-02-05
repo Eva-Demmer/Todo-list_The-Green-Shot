@@ -73,6 +73,19 @@ class TasksModel {
     return null
   }
 
+  async countCompleted() {
+    try {
+      const [tasksData] = await this.database.query(
+        `SELECT COUNT(*) as completedCount FROM ${this.table} WHERE completed = 1`
+      )
+      return tasksData[0].completedCount
+    } catch (err) {
+      console.error(err)
+    }
+
+    return null
+  }
+
   setDatabase(database) {
     this.database = database
   }

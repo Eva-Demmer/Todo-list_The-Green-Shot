@@ -1,4 +1,4 @@
-div.modal {
+.modal {
     display: flex;
     position: fixed;
     top: 0;
@@ -53,10 +53,10 @@ div.modal {
             text-align: left;
             display: block;
             margin: 0;
-            padding: 0 3rem;
+            padding: 2rem;
             background: color("white");
             border-bottom-left-radius: 0.8rem;
-                border-bottom-right-radius: 0.8rem;
+            border-bottom-right-radius: 0.8rem;
 
             &>*:first-child {
                 margin-top: 3rem;

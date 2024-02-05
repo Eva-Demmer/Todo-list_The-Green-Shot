@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, watch, onMounted, onBeforeUnmount } from "vue"
+import { defineEmits, watch, onMounted, onBeforeUnmount } from "vue"
 import { defineAsyncComponent } from "vue"
 
 const Button = defineAsyncComponent(() => import("../buttons/Button.vue"))

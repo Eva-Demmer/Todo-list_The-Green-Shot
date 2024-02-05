@@ -82,4 +82,23 @@ const deleteTask = async (req, res) => {
   }
 }
 
-export { getAllTasks, getTaskById, createTask, updateTask, deleteTask }
+const getCompletedCount = async (req, res) => {
+  try {
+    const count = await tasksModel.countCompleted()
+    res.status(200).json({ completedCount: count })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({
+      message: "❌ An error occurred while counting the completed tasks.",
+    })
+  }
+}
+
+export {
+  getAllTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask,
+  getCompletedCount,
+}

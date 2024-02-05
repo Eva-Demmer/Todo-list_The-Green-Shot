@@ -43,6 +43,7 @@ function updateTask(id, updatedTask) {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
+      return response.text().then((text) => (text ? JSON.parse(text) : {}))
     })
     .catch((error) => {
       console.error(error)
@@ -63,4 +64,12 @@ function deleteTask(id) {
     })
 }
 
-export { getTasks, getTaskById, createTask, updateTask, deleteTask }
+function getCompletedCount() {
+  return fetch(`${url}${route}/completed/count`)
+    .then((response) => response.json())
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+export { getTasks, getTaskById, createTask, updateTask, deleteTask, getCompletedCount }
