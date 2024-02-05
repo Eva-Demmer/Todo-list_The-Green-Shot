@@ -1,0 +1,31 @@
+.btn {
+    // diminue le margin sur l'icone seulement si c'est un bouton icon et texte
+    .q-icon:not(:last-child) {
+        margin-right: 0.6rem;
+    }
+
+    // fix les padding des boutons avec icon seuelement
+    &:has(.q-icon:last-child) {
+        padding: 0.6rem;
+
+    @each $key, $value in $colors {
+        &.btn-#{$key} {
+            @include button-color(#{$key});
+        }
+
+        &.btn-outline-#{$key} {
+            @include outlined-button-color(#{$key});
+        }
+    }   font-size: 1.2rem;
+    }
+
+    @each $key, $value in $colors {
+        &.btn-#{$key} {
+            @include button-color(#{$key});
+        }
+
+        &.btn-outline-#{$key} {
+            @include outlined-button-color(#{$key});
+        }
+    }
+}

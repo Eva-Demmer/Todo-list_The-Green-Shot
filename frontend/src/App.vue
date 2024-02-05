@@ -1,17 +1,9 @@
 <template>
-  <header>
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>main</main>
+  <Header />
+  <RouterView />
 </template>
 
 <script setup>
-import HelloWorld from "./components/HelloWorld.vue"
+import { RouterView } from "vue-router"
+import Header from "./components/header/Header.vue"
 </script>
-
-<style scoped>
-/* import stylesheet or style direclty */
-</style>

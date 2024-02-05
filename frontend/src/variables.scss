@@ -1,9 +1,80 @@
 // ------------------------ COLOURS ------------------------
-$color-white: #fcfaff;
-$color-gray: #9b9b9b;
-$color-darkGray: #a8a7a7;
-$color-black: #151515;
+$colors: (
+    "white": #fcfaff,
+    "darkgray": #9b9b9b,
+    "gray": #a8a7a7,
+    "ligthGray": #f9f9f9,
+    "black": #151515,
+    "yellow": #ffbe0b,
+    "orange": #fb5607,
+    "pink": #ff006e,
+    "purple": #8338ec,
+    "blue": #3a86ff,
 
-// Status
-$color-danger: #ff6f5b;
-$color-success: #4ee1a0;
+    "danger": #ff6f5b,
+    "success": #4ee1a0
+);
+
+:root {
+    @each $key, $value in $colors {
+        --color-#{$key}: #{$value};
+        --color-light-#{$key}: #{lighten($value, 15%)};
+        --color-dark-#{$key}: #{darken($value, 15%)};
+        --color-trans-#{$key}: #{transparentize($value, 0.5)};
+    }
+}
+
+@function color($color-name) {
+    @return var(--color-#{$color-name});
+}
+
+@mixin button-color($color-name) {
+    @if not map-get($colors, $color-name + "") {
+        @error "Color #{$color-name} not found in map $colors";
+    }
+
+    background-color: color($color-name);
+    @if $color-name == "white" {
+        color: color("black");
+    } @else {
+        color: color("white");
+    }
+
+    &:hover {
+        background-color: color("light-" + $color-name);
+
+        &:active {
+            background-color: color("dark-" + $color-name);
+        }
+    }
+}
+
+@mixin outlined-button-color($color-name) {
+    @if not map-get($colors, $color-name + "") {
+        @error "Color #{$color-name} not found in map $colors";
+    }
+    border: 0.1rem solid;
+    color: color($color-name);
+    @if $color-name == "white" {
+        color: color("black");
+    }
+
+    &:hover {
+        color: color("white");
+        @if $color-name == "white" {
+            color: color("black");
+        }
+        border-color: color("light-" + $color-name);
+        background-color: color("light-" + $color-name);
+
+        &:active {
+            color: color("white");
+            @if $color-name == "white" {
+                color: color("black");
+            }
+            border-color: color("dark-" + $color-name);
+            background-color: color("dark-" + $color-name);
+        }
+    }
+}
+
